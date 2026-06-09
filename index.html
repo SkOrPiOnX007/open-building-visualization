@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Open Buildings Viewer</title>
+
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 20px;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 180px;
+        }
+
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            line-height: 22px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+        }
+          
+    </style>
+</head>
+
+<body>
+
+    <h2>Open Buildings Viewer</h2>
+
+    <input type="number" id="lat" placeholder="Enter Latitude">
+    <input type="number" id="lon" placeholder="Enter Longitude">
+
+
+    <button onclick="showLocation()">Show Location</button>
+    <button onclick="showVisualization()">
+        Generate Area Visualization
+    </button>
+    <button onclick="downloadMap()">
+        Download Visualization
+    </button>
+
+
+    <p id="status"></p>
+
+    <div id="map"></div>
+
+   
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script>
+        var map = L.map('map').setView([30.3165, 78.0322], 13);
+    
+        var satelliteLayer = L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            {
+                attribution: "Tiles © Esri",
+                crossOrigin: true
+            }
+        ).addTo(map);
+
+        var osmLayer = L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+                 attribution: "© OpenStreetMap",
+                 crossOrigin: true
+            }
+        );
+        
+        var marker;
+        var box;
+        var buildingLayer;
+        
+        
+        async function showLocation() {
+    
+            var lat = parseFloat(document.getElementById("lat").value);
+            var lon = parseFloat(document.getElementById("lon").value);
+    
+            if (isNaN(lat) || isNaN(lon)) {
+                alert("Please enter valid latitude and longitude");
+                return;
+            }
+            document.getElementById("status").innerText = "Loading buildings...";
+            if (buildingLayer) {
+                    map.removeLayer(buildingLayer);
+                        }
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/buildings?lat=${lat}&lon=${lon}` );
+                const data = await response.json();
+                console.log(data);
+                
+
+                buildingLayer = L.geoJSON(data, {
+                style: function () {
+                    return {
+                        color: "blue",
+                        weight: 2,
+                        fillColor: "blue",
+                        fillOpacity: 0.35,
+                        interactive: true
+                     };
+                },
+
+            onEachFeature: function (feature, layer) {
+                layer.on("click", function () {
+                    alert(
+                     "Area: " + feature.properties.area_m2 + " m²\n" +
+                     "Perimeter: " + feature.properties.perimeter_m +"m\n" +
+                     "Length: " + feature.properties.length_m +"m\n"+ 
+                     "Width: " + feature.properties.width_m + " m"
+                    );
+                 });
+
+                 layer.bindPopup(
+                         "Area: " + feature.properties.area_m2 + " m²<br>" +
+                         "Perimeter: " + feature.properties.perimeter_m + " m<br>" +
+                         "Length: " + feature.properties.length_m + " m<br>" +
+                         "Width: " + feature.properties.width_m + " m"
+                        );
+             }
+            }).addTo(map);
+
+                document.getElementById("status").innerText = "Buildings loaded";
+            } 
+            catch (err) {
+                alert("ERROR: " + err);
+            }
+    
+            map.setView([lat, lon], 15);
+    
+            if (marker) {
+                map.removeLayer(marker);
+            }
+    
+            marker = L.marker([lat, lon]).addTo(map);
+    
+            var offset = 0.009;
+    
+            var bounds = [
+                [lat - offset, lon - offset],
+                [lat + offset, lon + offset]
+            ];
+    
+            if (box) {
+                map.removeLayer(box);
+            }
+    
+            box = L.rectangle(bounds, {
+                 color: "red",
+                 weight: 2,
+                 fillOpacity: 0.1,
+                 interactive: false
+                }).addTo(map);
+        }
+
+         function getBuildingColor(area) {
+                if (area > 300) return "#800026";
+                if (area > 150) return "#BD0026";
+                if (area > 50) return "#FD8D3C";
+                return "#FED976";
+            }
+
+            var legend;
+
+        function addLegend() {
+            if (legend) {
+                 map.removeControl(legend);
+            }
+
+            legend = L.control({ position: "bottomleft" });
+
+            legend.onAdd = function() {
+                var div = L.DomUtil.create("div", "legend");
+
+                div.innerHTML += "<b>Building Area</b><br>";
+                div.innerHTML += '<i style="background:#FED976"></i> 0 - 50 m²<br>';
+                div.innerHTML += '<i style="background:#FD8D3C"></i> 50 - 150 m²<br>';
+                div.innerHTML += '<i style="background:#BD0026"></i> 150 - 300 m²<br>';
+                div.innerHTML += '<i style="background:#800026"></i> 300+ m²<br>';
+
+                return div;
+            };
+
+            legend.addTo(map);  
+        
+        }
+            
+        
+        
+        function showVisualization() {
+              
+            if (!buildingLayer) {
+                alert("Please click Show Location first.");
+                return;
+             }
+
+            buildingLayer.eachLayer(function(layer) {
+                
+                var area = layer.feature.properties.area_m2;
+
+                layer.setStyle({
+                    color: getBuildingColor(area),
+                    fillColor: getBuildingColor(area),
+                    weight: 1,
+                    fillOpacity: 0.8
+                    });
+                });
+                addLegend();
+            }
+
+            function downloadMap() {
+
+if (!buildingLayer) {
+    alert("Please click Show Location and Generate Area Visualization first.");
+    return;
+}
+
+if (marker) {
+    map.removeLayer(marker);
+}
+
+if (box) {
+    map.removeLayer(box);
+}
+
+map.zoomControl.remove();
+
+var tilePane = document.querySelector(".leaflet-tile-pane");
+if (tilePane) {
+    tilePane.style.display = "none";
+}
+
+setTimeout(function () {
+
+    html2canvas(document.getElementById("map"), {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: "white"
+    }).then(function(canvas) {
+
+        var link = document.createElement("a");
+        link.download = "building_choropleth_visualization.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        if (tilePane) {
+            tilePane.style.display = "block";
+        }
+
+        if (box) {
+            box.addTo(map);
+        }
+
+        map.zoomControl.addTo(map);
+
+        if (marker) {
+            marker.addTo(map);
+        }
+
+    }).catch(function(error) {
+
+        if (tilePane) {
+            tilePane.style.display = "block";
+        }
+
+        if (box) {
+            box.addTo(map);
+        }
+
+        map.zoomControl.addTo(map);
+
+        if (marker) {
+            marker.addTo(map);
+        }
+
+        alert("Download failed: " + error);
+    });
+
+}, 500);
+}
+    </script>
+
+</body>
+</html>

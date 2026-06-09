@@ -29,10 +29,10 @@ A web-based GIS application that allows users to enter latitude and longitude, f
 - GeoPandas
 - Shapely
 - Momepy
-
+  
 ## Project Flow
 
-```text
+
 User enters latitude and longitude
         ↓
 Frontend sends request to FastAPI
@@ -47,4 +47,57 @@ GeoJSON is sent back to frontend
         ↓
 Leaflet displays buildings on map
         ↓
-User can generate choropleth visualization
+User can generate choropleth 
+
+
+##Building Area Categories
+
+| Category   | Area Range   |
+| ---------- | ------------ |
+| Small      | 0 - 50 m²    |
+| Medium     | 50 - 150 m²  |
+| Large      | 150 - 300 m² |
+| Very Large | 300+ m²      |
+
+## How to Run
+
+```bash
+git clone https://github.com/SkOrPiOnX007/open-building-visualization.git
+
+cd open-building-visualization
+
+python3 -m venv .venv
+
+source .venv/bin/activate
+
+pip install fastapi uvicorn earthengine-api geopandas shapely pyproj momepy
+
+earthengine authenticate
+
+uvicorn main:app --reload
+```
+
+After the server starts:
+
+1. Open `index.html`
+2. Enter Latitude and Longitude
+3. Click **Show Location**
+4. Click **Generate Area Visualization**
+5. Click any building to view:
+   - Area
+   - Perimeter
+   - Length
+   - Width
+6. Download the visualization if required
+   
+Future Improvements
+ -Add viewport-based loading for large areas
+ -Improve export quality
+ -Add density heatmap visualization
+ -Add GeoJSON/CSV export
+ -Add user-defined area size
+ -Add better building accuracy validation
+
+Author
+Arya Goyal
+

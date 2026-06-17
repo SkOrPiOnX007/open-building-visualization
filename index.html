@@ -24,7 +24,7 @@
         }
 
         #map {
-            height: 600px;
+            height: 650px;
             width: 100%;
             margin-top: 20px;
         }
@@ -133,7 +133,8 @@
                      "Area: " + feature.properties.area_m2 + " m²\n" +
                      "Perimeter: " + feature.properties.perimeter_m +"m\n" +
                      "Length: " + feature.properties.length_m +"m\n"+ 
-                     "Width: " + feature.properties.width_m + " m"
+                     "Width: " + feature.properties.width_m + " m\n" +
+                     "Elongation: " + feature.properties.elongation
                     );
                  });
 
@@ -141,7 +142,8 @@
                          "Area: " + feature.properties.area_m2 + " m²<br>" +
                          "Perimeter: " + feature.properties.perimeter_m + " m<br>" +
                          "Length: " + feature.properties.length_m + " m<br>" +
-                         "Width: " + feature.properties.width_m + " m"
+                         "Width: " + feature.properties.width_m + " m<br>" +
+                         "Elongation: " + feature.properties.elongation
                         );
              }
             }).addTo(map);
@@ -236,74 +238,74 @@
 
             function downloadMap() {
 
-if (!buildingLayer) {
-    alert("Please click Show Location and Generate Area Visualization first.");
-    return;
-}
+                if (!buildingLayer) {
+                     alert("Please click Show Location and Generate Area Visualization first.");
+                     return;
+                    }
 
-if (marker) {
-    map.removeLayer(marker);
-}
+                if (marker) {
+                    map.removeLayer(marker);
+                }
 
-if (box) {
-    map.removeLayer(box);
-}
+                if (box) {
+                    map.removeLayer(box);
+                }
 
-map.zoomControl.remove();
+            map.zoomControl.remove();
 
-var tilePane = document.querySelector(".leaflet-tile-pane");
-if (tilePane) {
-    tilePane.style.display = "none";
-}
+            var tilePane = document.querySelector(".leaflet-tile-pane");
+            if (tilePane) {
+                tilePane.style.display = "none";
+            }
 
-setTimeout(function () {
+            setTimeout(function () {
 
-    html2canvas(document.getElementById("map"), {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: "white"
-    }).then(function(canvas) {
+            html2canvas(document.getElementById("map"), {
+                    useCORS: true,
+                    scale: 2,
+                    backgroundColor: "white"
+                }).then(function(canvas) {
 
-        var link = document.createElement("a");
-        link.download = "building_choropleth_visualization.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+            var link = document.createElement("a");
+            link.download = "building_choropleth_visualization.png";
+            link.href = canvas.toDataURL("image/png");
+            link.click();
 
-        if (tilePane) {
-            tilePane.style.display = "block";
-        }
+             if (tilePane) {
+                tilePane.style.display = "block";
+            }
 
-        if (box) {
-            box.addTo(map);
-        }
+            if (box) {
+                box.addTo(map);
+            }
 
-        map.zoomControl.addTo(map);
+            map.zoomControl.addTo(map);
 
-        if (marker) {
-            marker.addTo(map);
-        }
+            if (marker) {
+                marker.addTo(map);
+            }
 
-    }).catch(function(error) {
+        }).catch(function(error) {
 
-        if (tilePane) {
-            tilePane.style.display = "block";
-        }
+            if (tilePane) {
+                tilePane.style.display = "block";
+            }
 
-        if (box) {
-            box.addTo(map);
-        }
+            if (box) {
+                box.addTo(map);
+            }
 
-        map.zoomControl.addTo(map);
+            map.zoomControl.addTo(map);
 
-        if (marker) {
-            marker.addTo(map);
-        }
+            if (marker) {
+                marker.addTo(map);
+            }
 
         alert("Download failed: " + error);
-    });
+         });
 
-}, 500);
-}
+        }, 500);
+    }
     </script>
 
 </body>

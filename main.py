@@ -1,13 +1,14 @@
 import ee
 import math
 import geopandas as gpd
+import momepy
 from shapely.geometry import Polygon
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-ee.Initialize()
+ee.Initialize(project="ee-goyalarya2005")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -43,11 +44,15 @@ def get_buildings(lat: float, lon: float):
         )
 
         gdf = gdf.to_crs(epsg=3857)
+        gdf["elongation"] = momepy.Elongation(gdf).series
 
         geom = gdf.geometry.iloc[0]
 
-        area_m2 = geom.area
-        perimeter_m = geom.length
+        gdf["area"] = momepy.Area(gdf).series
+        gdf["perimeter"] = momepy.Perimeter(gdf).series
+
+        area_m2 = gdf["area"].iloc[0]
+        perimeter_m = gdf["perimeter"].iloc[0]
 
         min_rect = geom.minimum_rotated_rectangle
         rect_coords = list(min_rect.exterior.coords)
@@ -68,5 +73,7 @@ def get_buildings(lat: float, lon: float):
         feature["properties"]["perimeter_m"] = round(perimeter_m, 2)
         feature["properties"]["length_m"] = round(building_length, 2)
         feature["properties"]["width_m"] = round(building_width, 2)
-
+        feature["properties"]["elongation"] = round(
+    float(gdf["elongation"].iloc[0]), 2
+)
     return geojson

@@ -1,3 +1,5 @@
+import os
+import json
 import ee
 import math
 import geopandas as gpd
@@ -8,7 +10,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
-ee.Initialize(project="ee-goyalarya2005")
+if os.environ.get("GOOGLE_CREDENTIALS_JSON"):
+    credentials = ee.ServiceAccountCredentials(
+        json.loads(os.environ["GOOGLE_CREDENTIALS_JSON"])["client_email"],
+        key_data=os.environ["GOOGLE_CREDENTIALS_JSON"]
+    )
+
+    ee.Initialize(credentials, project="ee-goyalarya2005")
+
+else:
+    ee.Initialize(project="ee-goyalarya2005")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

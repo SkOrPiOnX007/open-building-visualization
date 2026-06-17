@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+earthengine-api
+geopandas
+shapely
+pyproj
+momepy

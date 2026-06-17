@@ -44,12 +44,17 @@ def get_buildings(lat: float, lon: float):
         )
 
         gdf = gdf.to_crs(epsg=3857)
-        gdf["elongation"] = momepy.Elongation(gdf).series
+        
 
         geom = gdf.geometry.iloc[0]
 
         gdf["area"] = momepy.Area(gdf).series
         gdf["perimeter"] = momepy.Perimeter(gdf).series
+        gdf["elongation"] = momepy.Elongation(gdf).series
+        gdf["compactness"] = momepy.CircularCompactness(gdf).series
+        gdf["orientation"] = momepy.Orientation(gdf).series
+        gdf["eri"] = momepy.EquivalentRectangularIndex(gdf).series
+        gdf["squareness"] = momepy.Squareness(gdf).series
 
         area_m2 = gdf["area"].iloc[0]
         perimeter_m = gdf["perimeter"].iloc[0]
@@ -69,11 +74,14 @@ def get_buildings(lat: float, lon: float):
         building_length = max(side_lengths)
         building_width = min(side_lengths)
 
-        feature["properties"]["area_m2"] = round(area_m2, 2)
-        feature["properties"]["perimeter_m"] = round(perimeter_m, 2)
+        feature["properties"]["area_m2"] = round(float(gdf["area"].iloc[0]), 2)
+        feature["properties"]["perimeter_m"] = round(float(gdf["perimeter"].iloc[0]), 2)
         feature["properties"]["length_m"] = round(building_length, 2)
         feature["properties"]["width_m"] = round(building_width, 2)
-        feature["properties"]["elongation"] = round(
-    float(gdf["elongation"].iloc[0]), 2
-)
+        feature["properties"]["elongation"] = round(float(gdf["elongation"].iloc[0]), 2)
+        feature["properties"]["compactness"] = round(float(gdf["compactness"].iloc[0]), 2)
+        feature["properties"]["orientation"] = round(float(gdf["orientation"].iloc[0]), 2)
+        feature["properties"]["equivalent_rectangular_index"] = round(float(gdf["eri"].iloc[0]), 2)
+        feature["properties"]["squareness"] = round(float(gdf["squareness"].iloc[0]), 2)
+
     return geojson

@@ -134,17 +134,25 @@
                      "Perimeter: " + feature.properties.perimeter_m +"m\n" +
                      "Length: " + feature.properties.length_m +"m\n"+ 
                      "Width: " + feature.properties.width_m + " m\n" +
-                     "Elongation: " + feature.properties.elongation
+                     "Elongation: " + feature.properties.elongation + "\n" +
+                     "Compactness: " + feature.properties.compactness + "\n" +
+                     "Orientation: " + feature.properties.orientation + "°\n" +
+                     "Equivalent Rectangular Index: " + feature.properties.equivalent_rectangular_index + "\n" +
+                     "Squareness: " + feature.properties.squareness
                     );
                  });
 
                  layer.bindPopup(
-                         "Area: " + feature.properties.area_m2 + " m²<br>" +
-                         "Perimeter: " + feature.properties.perimeter_m + " m<br>" +
-                         "Length: " + feature.properties.length_m + " m<br>" +
-                         "Width: " + feature.properties.width_m + " m<br>" +
-                         "Elongation: " + feature.properties.elongation
-                        );
+                    "Area: " + feature.properties.area_m2 + " m²<br>" +
+                    "Perimeter: " + feature.properties.perimeter_m + " m<br>" +
+                    "Length: " + feature.properties.length_m + " m<br>" +
+                    "Width: " + feature.properties.width_m + " m<br>" +
+                    "Elongation: " + feature.properties.elongation + "<br>" +
+                    "Compactness: " + feature.properties.compactness + "<br>" +
+                    "Orientation: " + feature.properties.orientation + "°<br>" +
+                    "Equivalent Rectangular Index: " + feature.properties.equivalent_rectangular_index + "<br>" +
+                    "Squareness: " + feature.properties.squareness
+                );
              }
             }).addTo(map);
 

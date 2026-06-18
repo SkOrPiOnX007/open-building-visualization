@@ -40,7 +40,7 @@ def get_buildings(lat: float, lon: float):
 
     buildings = ee.FeatureCollection(
         "GOOGLE/Research/open-buildings/v3/polygons"
-    ).filterBounds(area).limit(300)
+    ).filterBounds(area).limit(200)
 
     geojson = buildings.getInfo()
 

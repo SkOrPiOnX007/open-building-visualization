@@ -98,6 +98,8 @@
     <script src="https://unpkg.com/leaflet-image/leaflet-image.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
+    const BACKEND_URL = "https://open-building-backend.onrender.com";
+
     <script>
         var map = L.map('map').setView([30.3165, 78.0322], 13);
     
@@ -151,7 +153,7 @@
 
 
             try {
-                const response = await fetch(`http://127.0.0.1:8000/buildings?lat=${lat}&lon=${lon}&radius=${radius}&limit=${limit}`);
+                const response = await fetch(`${BACKEND_URL}/buildings?lat=${lat}&lon=${lon}&radius=${radius}&limit=${limit}`);
                 const data = await response.json();
                 console.log(data);
 
@@ -215,7 +217,7 @@
              }
             }).addTo(map);
 
-            const gridResponse = await fetch(`http://127.0.0.1:8000/grids?lat=${lat}&lon=${lon}&radius=${radius}&grid_size=${gridSize}`);
+            const gridResponse = await fetch(`${BACKEND_URL}/grids?lat=${lat}&lon=${lon}&radius=${radius}&grid_size=${gridSize}`);
 
             const gridData = await gridResponse.json();
 
@@ -256,7 +258,6 @@
     
             var radiusMeters = parseFloat(radius);
 
-    // Convert meters to approximate degrees
             var latOffset = radiusMeters / 111320;
             var lonOffset = radiusMeters / (111320 * Math.cos(lat * Math.PI / 180));
 
@@ -340,7 +341,7 @@
 
             try {
 
-                const response = await fetch(`http://127.0.0.1:8000/grids?lat=${lat}&lon=${lon}&radius=${radius}&grid_size=${gridSize}`);
+                const response = await fetch(`${BACKEND_URL}/grids?lat=${lat}&lon=${lon}&radius=${radius}&grid_size=${gridSize}`);
 
                 const data = await response.json();
 
